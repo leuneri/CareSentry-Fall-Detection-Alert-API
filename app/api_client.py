@@ -24,6 +24,7 @@ def send_frame_to_api(frame):
     if response:
         return True
         # Add true response here for how to handle
+    # offer a response with location included (hard-coded for now)
 
 # Initialize the camera
 cap = cv2.VideoCapture(0)
