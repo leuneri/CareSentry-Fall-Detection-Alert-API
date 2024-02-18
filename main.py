@@ -1,66 +1,60 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from keras.models import load_model
+from fastapi.responses import JSONResponse
+from typing import List
 import numpy as np
 import cv2
-import os
-from typing import List
 import logging
-from pathlib import Path
+import tempfile
+import shutil
+import os
 
 app = FastAPI()
 logging.basicConfig(level=logging.INFO)
 
-# Load your pre-trained model (adjust the path to your saved model correctly)
-current_directory = Path.cwd()
-model_path = current_directory / "model.keras"  # Use pathlib for OS-agnostic path handling
-try:
-    model = load_model(model_path)
-except Exception as e:
-    logging.error(f"Failed to load model: {e}")
-    # Consider adding error handling to stop the app if critical
-    # raise RuntimeError(f"Failed to load model: {e}")
+# Load your model as before
+model = load_model("model.keras")
 
-# Function to load and preprocess images from a folder
-def load_and_preprocess_images(folder_path: str):
-    images = []
-    for filename in sorted(os.listdir(folder_path)):
-        # Ensure the file is an image
-        if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-            # Read the image using OpenCV
-            image_path = os.path.join(folder_path, filename)
-            image = cv2.imread(image_path)
+def load_and_preprocess_images_from_files(files: List[UploadFile]):
+    with tempfile.TemporaryDirectory() as temp_dir:
+        images = []
+        for file in files:
+            # Save temporary file
+            temp_file = os.path.join(temp_dir, file.filename)
+            with open(temp_file, 'wb') as f:
+                shutil.copyfileobj(file.file, f)
+            
+            # Process the image
+            image = cv2.imread(temp_file)
             if image is None:
-                logging.warning(f"Failed to load image: {image_path}")
+                logging.warning(f"Failed to load image: {temp_file}")
                 continue
-            # Resize and normalize the image
             image = cv2.resize(image, (128, 96))
             image = image / 255.0
             images.append(image)
-    if len(images) != 60:
-        raise ValueError("Expected 60 images, found {}".format(len(images)))
-    images_array = np.array(images)
-    # Add an extra dimension to indicate batch size, which is 1 in this case
-    images_array = np.expand_dims(images_array, axis=0)
-    return images_array
+        
+        if len(images) != 60:
+            raise ValueError("Expected 60 images, found {}".format(len(images)))
+        images_array = np.array(images)
+        images_array = np.expand_dims(images_array, axis=0)
+        return images_array
 
-@app.get("/predict/")
-async def predict_from_folder():
-    folder_path = current_directory / "vidframes1" 
-    # create script later in CV to clear vidframes1 then update all frames to vidframes1
-
+@app.post("/predict/")
+async def predict_from_folder(files: List[UploadFile] = File(...)):
     try:
-        # Load and preprocess images
-        images_array = load_and_preprocess_images(folder_path)
-        if images_array.ndim == 3:  # Ensure the input shape is correct
+        # Preprocess and load images
+        images_array = await load_and_preprocess_images_from_files(files)
+        
+        # Ensure the input shape is correct
+        if images_array.ndim == 3:
             images_array = np.expand_dims(images_array, axis=0)
+        
         # Predict
         prediction = model.predict(images_array)
-        # Assume the model outputs a sigmoid activation and use 0.5 as the threshold for binary classification
+        
+        # Process prediction
         result = (prediction > 0.5).astype('int').tolist()
-        return {"result": result}
+        return JSONResponse(content={"result": result})
     except Exception as e:
         logging.error(f"Error during prediction: {e}")
-        raise HTTPException(status_code=500, detail=f"Prediction error: {e}")
-
-# Run the API with uvicorn
-# Command to run: uvicorn main:app --reload
+        return HTTPException(status_code=500, detail=f"Prediction error: {e}")
