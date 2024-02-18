@@ -45,7 +45,8 @@ def load_and_preprocess_images(folder_path: str):
 
 @app.get("/predict/")
 async def predict_from_folder():
-    folder_path = "C:/Users/ericl/git/fall_detection/vidframes1"
+    folder_path = current_directory / "vidframes1" 
+    # create script later in CV to clear vidframes1 then update all frames to vidframes1
 
     try:
         # Load and preprocess images
@@ -62,4 +63,4 @@ async def predict_from_folder():
         raise HTTPException(status_code=500, detail=f"Prediction error: {e}")
 
 # Run the API with uvicorn
-# Command to run: uvicorn your_script_name:app --reload
+# Command to run: uvicorn main:app --reload
