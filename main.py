@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from tensorflow.keras.models import load_model
+from keras.models import load_model
 from fastapi.responses import JSONResponse
 from typing import List
 import numpy as np
