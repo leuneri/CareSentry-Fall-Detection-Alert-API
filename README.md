@@ -1,5 +1,6 @@
 Type `py api_client.py` into the terminal to run the program :)
 Beware! It takes data from your camera! And make sure not to hurt yourself falling, have fun!
+https://youtu.be/lxDbjzwF7sI?si=eYElnzT3ymtK4qDq
 
 # Problem Space
 Our team member has a personal connection to senior care in hospitals. Her loved one was sent to the hospital for a simple injury diagnosis, but his stay was extended due to a fall injury. Witnessing how devastating a simple fall could be, prolonging hospital stay by months, was eye-opening and served as the inspiration behind this project. In building this hack, our goal was to reduce the impact of fall injuries on senior health.
