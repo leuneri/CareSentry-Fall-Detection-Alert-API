@@ -2,4 +2,7 @@ opencv-python
 numpy==1.21.2
 requests
 tensorflow
+flask
+fastapi
 
+pip install fastapi[all]
