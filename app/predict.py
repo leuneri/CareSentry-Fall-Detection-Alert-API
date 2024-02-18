@@ -9,13 +9,14 @@ model = load_model('model.keras')
 
 def predict(video_path):
     processed_images = []
-    
-    for img in os.listdir(video_path):
-        img = cv2.imread(img)
+
+    for img in sorted(os.listdir(video_path)):
+        img = cv2.imread(os.path.join(video_path, img))
         if img is not None:
             img = cv2.resize(img, (128, 96))
             img = img / 255
             processed_images.append(img)
+
     processed_images = np.array(processed_images)  # Convert the list to a numpy array
     predictions = model.predict(processed_images)
     
