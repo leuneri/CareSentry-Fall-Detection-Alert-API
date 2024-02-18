@@ -8,7 +8,7 @@ sinch_client = Client(
 
 def send_message():
     send_batch_response = sinch_client.sms.batches.send(
-    body="Fall Detected!",
+    body="Fall detection alert: Room 207 at Bed B! \n\n - Automated message sent from CareSentry API",
     to=["13022526216"],
     from_="12085810360",
     delivery_report="none"
