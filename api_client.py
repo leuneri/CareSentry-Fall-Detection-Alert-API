@@ -6,7 +6,7 @@ import os
 import logging
 from pathlib import Path
 from typing import List
-from send_sms import send_batch_response
+from send_sms import send_message
 
 # import shutil
 send_every_n_frames = 60  # Adjust based on your needs
@@ -75,6 +75,8 @@ def predict_from_folder():
         prediction = model.predict(images_array)
         # Assume the model outputs a sigmoid activation and use 0.5 as the threshold for binary classification
         result = (prediction > 0.5).astype('int').tolist()
+        # send sms
+        send_message()
         return {"result": result}
     except Exception as e:
         logging.error(f"Error during prediction: {e}")

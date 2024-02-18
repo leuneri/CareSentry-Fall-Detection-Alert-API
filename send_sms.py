@@ -6,11 +6,12 @@ sinch_client = Client(
     project_id="5fb58ea0-10d4-4227-b71d-c0bbc32986b4"
 )
 
-send_batch_response = sinch_client.sms.batches.send(
+def send_message():
+    send_batch_response = sinch_client.sms.batches.send(
     body="Fall Detected!",
     to=["13022526216"],
     from_="12085810360",
     delivery_report="none"
 )
 
-print(send_batch_response)
+send_message()
